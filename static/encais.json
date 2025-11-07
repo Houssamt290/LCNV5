@@ -1,0 +1,74 @@
+{
+  "AWBe": [
+    {
+      "montant": "4",
+      "echeance": "11-11-2018"
+    },
+    {
+      "montant": "333",
+      "echeance": "10-10-2020"
+    },
+    {
+      "montant": "20000",
+      "echeance": "11-11-2020"
+    },
+    {
+      "montant": "10000",
+      "echeance": "11-11-2020"
+    },
+    {
+      "montant": "1",
+      "echeance": "11-11-2020"
+    },
+    {
+      "montant": "3",
+      "echeance": "11-11-2025"
+    },
+    {
+      "montant": "333",
+      "echeance": "10-10-2020"
+    },
+    {
+      "montant": "444",
+      "echeance": "10-10-2029"
+    },
+    {
+      "montant": "112233",
+      "echeance": "11-11-2026"
+    },
+    {
+      "montant": "101010",
+      "echeance": "11-11-2029"
+    }
+  ],
+  "CONFe": [
+    {
+      "montant": "333",
+      "echeance": "20-10-2020"
+    },
+    {
+      "montant": "10",
+      "echeance": "11-11-2020"
+    },
+    {
+      "montant": "8",
+      "echeance": "11-11-2022"
+    },
+    {
+      "montant": "100",
+      "echeance": "11-11-2028"
+    },
+    {
+      "montant": "333",
+      "echeance": "11-11-2027"
+    },
+    {
+      "montant": "332211",
+      "echeance": "11-11-2026"
+    },
+    {
+      "montant": "111111",
+      "echeance": "11-11-2029"
+    }
+  ]
+}
