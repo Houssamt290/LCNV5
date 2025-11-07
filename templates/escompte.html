@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ESCOMPTE AWB/CONF</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #fdfdfd;
+            color: #333;
+            position: relative;
+        }
+        .nav-links {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+        }
+        .nav-links a {
+            padding: 8px 12px;
+            background-color: #2E8B57;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-weight: bold;
+            border: 1px solid #2E8B57;
+            transition: background-color 0.2s;
+        }
+        .nav-links a:hover {
+            background-color: #228B22;
+        }
+        /* ... (le reste du CSS inchangé) ... */
+        .table-container { display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 20px; }
+        .table-half { flex: 1 1 45%; min-width: 300px; background-color: #fff; padding: 10px; border: 1px solid #ddd; border-radius: 5px; box-shadow: 1px 1px 5px rgba(0,0,0,0.1); }
+        table { border-collapse: collapse; width: 100%; table-layout: fixed; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        tr.vide td { background-color: #f0f8ff; }
+        button { margin: 5px; padding: 8px 12px; cursor: pointer; background-color: #0066cc; color: #fff; border: none; border-radius: 4px; }
+        button:hover { background-color: #0055aa; }
+        .date-picker input { width: 100px; padding: 4px; border: 1px solid #ddd; }
+        .supprimer-ligne { color: red; cursor: pointer; margin-left: 5px; }
+        .table-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        #recap-table { position: fixed; top: 20px; right: 20px; border-collapse: collapse; background-color: #fff; padding: 10px; border: 1px solid #ddd; box-shadow: 1px 1px 5px rgba(0,0,0,0.1); table-layout: auto; z-index: 1000; max-width: 300px; font-size: 14px; }
+        #recap-table th, #recap-table td { padding: 5px 8px; text-align: right; }
+        #recap-table th:first-child, #recap-table td:first-child { text-align: left; }
+        .grey-count { color: #888; margin-left: 5px; }
+        #export-import-section { border: 1px solid #ddd; padding: 15px; margin-top: 20px; border-radius: 5px; background-color: #f9f9f9; display: none; }
+        #export-import-toggle { margin-top: 20px; cursor: pointer; color: #0066cc; text-decoration: underline; }
+        .export-import-group { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .export-import-group h4 { margin-top: 0; color: #333; }
+        textarea { width: 100%; height: 100px; margin: 10px 0; padding: 8px; border: 1px solid #ddd; border-radius: 4px; }
+        .file-input-container { margin: 10px 0; }
+    </style>
+</head>
+<body>
+    <!-- Lien vers ENCAISSEMENT -->
+    <div class="nav-links">
+        <a href="/encais.html">Aller à ENCAISSEMENT</a>
+    </div>
+
+    <h1>ESCOMPTE AWB/CONF</h1>
+
+    <!-- Tableau récapitulatif -->
+    <table id="recap-table">
+        <thead>
+            <tr>
+                <th></th>
+                <th>EXISTANTES</th>
+                <th>PRESENTATION</th>
+                <th>TOTAL</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>AWB</td>
+                <td id="recap-sourceAWB">0.00</td>
+                <td id="recap-destAWB">0.00</td>
+                <td id="recap-totalAWB">0.00</td>
+            </tr>
+            <tr>
+                <td>CONF</td>
+                <td id="recap-sourceCONF">0.00</td>
+                <td id="recap-destCONF">0.00</td>
+                <td id="recap-totalCONF">0.00</td>
+            </tr>
+            <tr>
+                <td>TOTAL</td>
+                <td id="recap-totalSource">0.00</td>
+                <td id="recap-totalDest">0.00</td>
+                <td></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <label for="dateSelect">Sélectionnez une date :</label>
+    <input type="date" id="dateSelect" value="2025-11-05">
+
+    <div>
+        <button id="copierAWB">COPIER AWB</button>
+        <button id="copierCONF">COPIER CONF</button>
+    </div>
+
+    <h2>
+        Tableaux Destination (PRESENTATION)
+        <span class="grey-count" id="totalCountDest">0</span>
+    </h2>
+    <div class="table-container">
+        <div class="table-half">
+            <div class="table-header">
+                <h3>AWB <span class="grey-count" id="count-destAWB">0</span></h3>
+                <button class="vider-tableau" data-table="destAWB">Vider</button>
+            </div>
+            <table id="destAWB">
+                <thead>
+                    <tr>
+                        <th>MONTANT</th>
+                        <th>ECHEANCE</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="table-half">
+            <div class="table-header">
+                <h3>CONF <span class="grey-count" id="count-destCONF">0</span></h3>
+                <button class="vider-tableau" data-table="destCONF">Vider</button>
+            </div>
+            <table id="destCONF">
+                <thead>
+                    <tr>
+                        <th>MONTANT</th>
+                        <th>ECHEANCE</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <h2>
+        Tableaux Source (EXISTANTES)
+        <span class="grey-count" id="totalCountSource">0</span>
+    </h2>
+    <div class="table-container">
+        <div class="table-half">
+            <div class="table-header">
+                <h3>AWBs <span class="grey-count" id="count-sourceAWB">0</span></h3>
+                <button class="vider-tableau" data-table="sourceAWB">Vider</button>
+            </div>
+            <table id="sourceAWB">
+                <thead>
+                    <tr>
+                        <th>MONTANT</th>
+                        <th>ECHEANCE</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+        <div class="table-half">
+            <div class="table-header">
+                <h3>CONFs <span class="grey-count" id="count-sourceCONF">0</span></h3>
+                <button class="vider-tableau" data-table="sourceCONF">Vider</button>
+            </div>
+            <table id="sourceCONF">
+                <thead>
+                    <tr>
+                        <th>MONTANT</th>
+                        <th>ECHEANCE</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Export/Import -->
+    <div id="export-import-toggle" onclick="document.getElementById('export-import-section').style.display = document.getElementById('export-import-section').style.display === 'none' ? 'block' : 'none'">
+        ▼ Afficher/Masquer les options d'export/import
+    </div>
+    <div id="export-import-section">
+        <div class="export-import-group">
+            <h4>1. Export/Import via Fichier JSON</h4>
+            <p>Exporte ou importe toutes les données en un seul fichier.</p>
+            <button id="export-json-btn">⬇️ Exporter en fichier JSON</button>
+            <div class="file-input-container">
+                <input type="file" id="import-file-input" accept=".json">
+                <button id="import-file-btn">⬆️ Importer depuis le fichier</button>
+            </div>
+        </div>
+        <div class="export-import-group">
+            <h4>2. Export/Import via Texte</h4>
+            <p>Copie-colle le JSON dans la zone de texte ci-dessous.</p>
+            <button id="export-text-btn">⬇️ Exporter vers la zone de texte</button>
+            <button id="import-text-btn">⬆️ Importer depuis la zone de texte</button>
+            <textarea id="data-textarea" placeholder="Collez ici vos données JSON pour l'import, ou copiez le JSON depuis l'export..."></textarea>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', async function() {
+            const tables = ['sourceAWB', 'sourceCONF', 'destAWB', 'destCONF'];
+
+            function formatMontant(num) {
+                return parseFloat(num || 0).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+            }
+
+            function formaterDate(str) {
+                if (!str) return '';
+                if (str.match(/^\d{2}-\d{2}-\d{4}$/)) return str;
+                if (str.length === 8 && str.match(/^\d+$/)) {
+                    return `${str.substring(0, 2)}-${str.substring(2, 4)}-${str.substring(4, 8)}`;
+                }
+                return str;
+            }
+
+            function parseDate(str) {
+                const formatted = formaterDate(str);
+                if (!formatted.match(/^\d{2}-\d{2}-\d{4}$/)) return null;
+                const [day, month, year] = formatted.split('-').map(Number);
+                return new Date(year, month - 1, day);
+            }
+
+            async function chargerDonnees() {
+                try {
+                    const res = await fetch('/escompte.json');
+                    if (!res.ok) throw new Error("Fichier introuvable");
+                    const data = await res.json();
+                    tables.forEach(id => remplirTable(id, data[id] || []));
+                } catch(e) {
+                    console.warn("Impossible de charger escompte.json, initialisation avec données par défaut", e);
+                    tables.forEach(id => remplirTable(id, []));
+                }
+                updateAllCounts();
+                updateRecap();
+            }
+
+            function remplirTable(id, data) {
+                const tbody = document.getElementById(id).querySelector('tbody');
+                tbody.innerHTML = '';
+                data.forEach(item => {
+                    const row = tbody.insertRow();
+                    row.innerHTML = `
+                        <td contenteditable="true">${item.montant}</td>
+                        <td>
+                            <div class="date-picker">
+                                <input type="text" class="date-input" value="${formaterDate(item.echeance)}">
+                                <i class="fas fa-calendar-alt" style="margin-left:5px; cursor:pointer;"></i>
+                            </div>
+                        </td>
+                        <td><i class="fas fa-minus-circle supprimer-ligne"></i></td>
+                    `;
+                    configurerLigne(row, tbody);
+                });
+                ajouterLigneVide(tbody);
+            }
+
+            function ajouterLigneVide(tbody) {
+                if (!tbody.querySelector('tr.vide')) {
+                    const newRow = tbody.insertRow();
+                    newRow.classList.add('vide');
+                    newRow.innerHTML = `
+                        <td contenteditable="true"></td>
+                        <td>
+                            <div class="date-picker">
+                                <input type="text" class="date-input" value="">
+                                <i class="fas fa-calendar-alt" style="margin-left:5px; cursor:pointer;"></i>
+                            </div>
+                        </td>
+                        <td><i class="fas fa-minus-circle supprimer-ligne"></i></td>
+                    `;
+                    configurerLigne(newRow, tbody);
+                }
+            }
+
+            function configurerLigne(row, tbody) {
+                const inputMontant = row.cells[0];
+                const inputDate = row.querySelector('input.date-input');
+                const icon = row.querySelector('.fa-calendar-alt');
+                const sup = row.querySelector('.supprimer-ligne');
+
+                icon.addEventListener('click', () => {
+                    const val = prompt("Saisissez la date JJMMYYYY ou JJ-MM-AAAA", inputDate.value);
+                    if (val) inputDate.value = formaterDate(val);
+                    sauvegarderDonnees();
+                });
+
+                inputDate.addEventListener('blur', () => {
+                    inputDate.value = formaterDate(inputDate.value);
+                    sauvegarderDonnees();
+                });
+
+                inputMontant.addEventListener('input', () => {
+                    if (row.classList.contains('vide') && inputMontant.textContent.trim() !== '') {
+                        row.classList.remove('vide');
+                        ajouterLigneVide(tbody);
+                    }
+                    updateAllCounts();
+                    updateRecap();
+                });
+
+                sup.addEventListener('click', () => {
+                    row.remove();
+                    ajouterLigneVide(tbody);
+                    sauvegarderDonnees();
+                    updateAllCounts();
+                    updateRecap();
+                });
+            }
+
+            function copieLignes(srcId, destId) {
+                const dateSelect = document.getElementById('dateSelect').value;
+                if (!dateSelect) {
+                    alert("Veuillez sélectionner une date.");
+                    return;
+                }
+                const dateChoisie = new Date(dateSelect);
+                const srcTbody = document.getElementById(srcId).querySelector('tbody');
+                const destTbody = document.getElementById(destId).querySelector('tbody');
+
+                const lignesACopier = [];
+                Array.from(srcTbody.rows).forEach(row => {
+                    if (row.classList.contains('vide') && !row.cells[0].textContent) return;
+                    try {
+                        const input = row.querySelector('input.date-input');
+                        const echeance = parseDate(input.value);
+                        if (echeance && echeance >= dateChoisie) {
+                            lignesACopier.push(row);
+                        }
+                    } catch (e) {
+                        console.error("Erreur de date :", e);
+                    }
+                });
+
+                Array.from(destTbody.rows).forEach(row => {
+                    if (!row.classList.contains('vide')) row.remove();
+                });
+
+                lignesACopier.forEach(row => {
+                    const newRow = destTbody.insertRow();
+                    const montant = row.cells[0].textContent;
+                    const date = row.querySelector('input.date-input').value;
+                    newRow.innerHTML = `
+                        <td contenteditable="true">${montant}</td>
+                        <td>
+                            <div class="date-picker">
+                                <input type="text" class="date-input" value="${formaterDate(date)}">
+                                <i class="fas fa-calendar-alt" style="margin-left:5px; cursor:pointer;"></i>
+                            </div>
+                        </td>
+                        <td><i class="fas fa-minus-circle supprimer-ligne"></i></td>
+                    `;
+                    configurerLigne(newRow, destTbody);
+                });
+
+                ajouterLigneVide(destTbody);
+                sauvegarderDonnees();
+                updateAllCounts();
+                updateRecap();
+            }
+
+            async function sauvegarderDonnees() {
+                const obj = {};
+                tables.forEach(id => {
+                    obj[id] = Array.from(document.getElementById(id).querySelectorAll('tbody tr:not(.vide)')).map(r => ({
+                        montant: r.cells[0].textContent,
+                        echeance: r.querySelector('input.date-input').value
+                    }));
+                });
+
+                try {
+                    await fetch('/escompte_save', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(obj)
+                    });
+                } catch (e) {
+                    console.warn("Erreur lors de la sauvegarde:", e);
+                }
+            }
+
+            function updateAllCounts() {
+                let totalDest = 0, totalSource = 0;
+                tables.forEach(id => {
+                    const n = Array.from(document.getElementById(id).querySelectorAll('tbody tr:not(.vide)')).length;
+                    const countEl = document.getElementById('count-' + id);
+                    if (countEl) countEl.textContent = n;
+                    if (id.startsWith('dest')) totalDest += n;
+                    else if (id.startsWith('source')) totalSource += n;
+                });
+                document.getElementById('totalCountDest').textContent = totalDest;
+                document.getElementById('totalCountSource').textContent = totalSource;
+            }
+
+            function updateRecap() {
+                const getSum = id => Array.from(document.getElementById(id).querySelectorAll('tbody tr:not(.vide)')).reduce((a, r) => a + parseFloat(r.cells[0].textContent || 0), 0);
+                const sAWB = getSum('sourceAWB'), sCONF = getSum('sourceCONF'), dAWB = getSum('destAWB'), dCONF = getSum('destCONF');
+                document.getElementById('recap-sourceAWB').textContent = formatMontant(sAWB);
+                document.getElementById('recap-destAWB').textContent = formatMontant(dAWB);
+                document.getElementById('recap-totalAWB').textContent = formatMontant(sAWB + dAWB);
+                document.getElementById('recap-sourceCONF').textContent = formatMontant(sCONF);
+                document.getElementById('recap-destCONF').textContent = formatMontant(dCONF);
+                document.getElementById('recap-totalCONF').textContent = formatMontant(sCONF + dCONF);
+                document.getElementById('recap-totalSource').textContent = formatMontant(sAWB + sCONF);
+                document.getElementById('recap-totalDest').textContent = formatMontant(dAWB + dCONF);
+            }
+
+            // Export/Import
+            document.getElementById('export-json-btn').addEventListener('click', () => {
+                fetch('/escompte.json')
+                    .then(r => r.blob())
+                    .then(blob => {
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = 'ESCOMPTE_AWB_CONF_' + new Date().toISOString().slice(0, 10) + '.json';
+                        a.click();
+                        URL.revokeObjectURL(url);
+                    });
+            });
+
+            document.getElementById('export-text-btn').addEventListener('click', () => {
+                fetch('/escompte.json')
+                    .then(r => r.json())
+                    .then(d => {
+                        document.getElementById('data-textarea').value = JSON.stringify(d, null, 2);
+                        alert("Données exportées dans la zone de texte.");
+                    });
+            });
+
+            document.getElementById('import-text-btn').addEventListener('click', () => {
+                try {
+                    const d = JSON.parse(document.getElementById('data-textarea').value);
+                    if (confirm("Remplacer toutes les données actuelles ?")) {
+                        tables.forEach(id => remplirTable(id, d[id] || []));
+                        sauvegarderDonnees();
+                    }
+                } catch (e) {
+                    alert("Erreur lors de l'import : " + e.message);
+                }
+            });
+
+            document.getElementById('import-file-btn').addEventListener('click', () => {
+                const file = document.getElementById('import-file-input').files[0];
+                if (!file) {
+                    alert("Veuillez sélectionner un fichier JSON.");
+                    return;
+                }
+                if (!confirm("Remplacer toutes les données actuelles ?")) return;
+                const reader = new FileReader();
+                reader.onload = e => {
+                    try {
+                        const d = JSON.parse(e.target.result);
+                        tables.forEach(id => remplirTable(id, d[id] || []));
+                        sauvegarderDonnees();
+                    } catch (err) {
+                        alert("Erreur lors de l'import du fichier : " + err.message);
+                    }
+                };
+                reader.readAsText(file);
+            });
+
+            document.querySelectorAll('.vider-tableau').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const id = btn.dataset.table;
+                    const tbody = document.getElementById(id).querySelector('tbody');
+                    if (confirm("Vider toutes les données de ce tableau ?")) {
+                        tbody.innerHTML = '';
+                        ajouterLigneVide(tbody);
+                        sauvegarderDonnees();
+                        updateAllCounts();
+                        updateRecap();
+                    }
+                });
+            });
+
+            document.getElementById('copierAWB').addEventListener('click', () => copieLignes('sourceAWB', 'destAWB'));
+            document.getElementById('copierCONF').addEventListener('click', () => copieLignes('sourceCONF', 'destCONF'));
+
+            await chargerDonnees();
+        });
+    </script>
+</body>
+</html>
